@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding=utf-8
 import requests
+import logging
 import re
 import codecs
 from bs4 import BeautifulSoup
@@ -11,6 +12,8 @@ ws1 = wb.active
 ws1.title = "电影top250"
 
 DOWNLOAD_URL = 'http://movie.douban.com/top250/'
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 
 def download_page(url):
@@ -24,6 +27,7 @@ def download_page(url):
 
 def get_li(doc):
     soup = BeautifulSoup(doc, 'html.parser')
+    # logging.info(soup)
     ol = soup.find('ol', class_='grid_view')
     name = []  # 名字
     star_con = []  # 评价人数
@@ -36,7 +40,7 @@ def get_li(doc):
         level_star = i.find(
             'span', attrs={'class': 'rating_num'}).get_text()  # 评分
         star = i.find('div', attrs={'class': 'star'})
-        star_num = star.find(text=re.compile('评价'))  # 评价
+        star_num = star.find(string=re.compile('评价'))  # 评价
 
         info = i.find('span', attrs={'class': 'inq'})  # 短评
         if info:  # 判断是否有短评
@@ -61,6 +65,7 @@ def main():
     info = []
     while url:
         doc = download_page(url)
+        logging.info(doc)
         movie, star, level_num, info_list, url = get_li(doc)
         name = name + movie
         star_con = star_con + star
